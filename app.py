@@ -103,13 +103,24 @@ def process_prefix(
 
 
 def app(
-    bucket: str,
-    kms_key_id: str,
-    prefix: str = "",
-    filter_match: Match = Match.FIRST,
-    keys_per_page: int = 1000,
-    dry_run: bool = False,
-    log_level: LogLevel = LogLevel.INFO,
+    bucket: str = typer.Argument(default=None, help="Name of S3 bucket to target."),
+    prefix: str = typer.Option(default="", help="Key prefix to start from."),
+    kms_key_id: str = typer.Argument(
+        default=None, help="KMS key id to match. Use 'alias/xxx' for key alias."
+    ),
+    filter_match: Match = typer.Option(
+        default=Match.FIRST, help="Level of strictness to filter for processing."
+    ),
+    keys_per_page: int = typer.Option(
+        default=1000, help="S3 list objects max keys per page"
+    ),
+    dry_run: bool = typer.Option(
+        default=False, help="If set, performs filter without execution of KMS changes."
+    ),
+    log_level: LogLevel = typer.Option(
+        default=LogLevel.INFO,
+        help="Verbosity of log. Only 'debug' or 'info' is relevant.",
+    ),
 ):
     logging.basicConfig()
     logger.setLevel(level=map_log_level(log_level))
