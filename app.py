@@ -2,20 +2,12 @@ import boto3
 from enum import Enum
 import logging
 import typer
-from typing import Iterable
-from kms_reencrypt.filters.base import Filter, Match
+from kms_reencrypt.filters.base import Filter, Match, get_match_pred
 from kms_reencrypt.filters.kms import Kms as KmsFilter
 from kms_reencrypt.executors.kms import Kms as KmsExec
 from kms_reencrypt.executors.base import Executor
 
 logger = logging.getLogger("app")
-
-
-def first(itr: Iterable[object]) -> bool:
-    try:
-        return next(itr)
-    except StopIteration:
-        return False
 
 
 class LogLevel(str, Enum):
@@ -59,14 +51,7 @@ def process_prefix(
     for page in pages:
         # "Files" in current "dir"
         if "Contents" in page and page["Contents"]:
-            if filter_match == Match.FIRST:
-                pred = first
-            elif filter_match == Match.ANY:
-                pred = any
-            elif filter_match == Match.ALL:
-                pred = all
-            else:
-                raise RuntimeError("Unexpected match type")
+            pred = get_match_pred(filter_match)
 
             # Make sure to wrap with () to use generator instead of []
             content_keys = (content_obj["Key"] for content_obj in page["Contents"])
