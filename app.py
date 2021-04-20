@@ -52,9 +52,9 @@ def process_prefix(
         # "Files" in current "dir"
         if "Contents" in page and page["Contents"]:
             pred = get_match_pred(filter_match)
+            content_keys = [content_obj["Key"] for content_obj in page["Contents"]]
 
-            # Make sure to wrap with () to use generator instead of []
-            content_keys = (content_obj["Key"] for content_obj in page["Contents"])
+            # Make sure to use the generator version by not eagerly assigning into a list
             res = pred(filter.process(bucket=bucket, key=key) for key in content_keys)
 
             if not res:
