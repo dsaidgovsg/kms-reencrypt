@@ -7,6 +7,13 @@ into your bucket, using the wrong KMS key (likely `aws/s3`) due to misconfigurat
 
 ## Quick Start
 
+Before running the script, do remember to set both your AWS profile and default region.
+
+```bash
+export AWS_PROFILE=my-aws-profile
+export AWS_DEFAULT_REGION="ap-southeast-1"
+```
+
 ```bash
 # Starts scanning from root for S3 objects whose KMS key does not match and re-encrypt matches
 poetry run app <bucket> <kms_key>
