@@ -111,7 +111,7 @@ def app(
     logger.setLevel(level=map_log_level(log_level))
 
     client_s3 = boto3.client("s3")
-    client_kms = boto3.client("kms")
+    client_kms = boto3.client("kms", region_name="ap-southeast-1")
 
     kms_filter = KmsFilter(client_s3, client_kms, kms_key_id)
     kms_exec = KmsExec(client_s3, kms_filter.kms_key_arn)
