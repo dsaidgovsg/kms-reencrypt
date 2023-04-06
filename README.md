@@ -37,6 +37,12 @@ This mode is good if the purpose is to only detect and not act on the objects.
 poetry run app --help
 ```
 
+To loop through a date range, set the right values in `loop.py` and run
+
+```bash
+python loop.py
+```
+
 ## Prerequisites to Run Script
 
 Minimum:
