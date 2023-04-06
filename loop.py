@@ -8,8 +8,8 @@ def date_range_list(start_date, end_date):
         curr_date += timedelta(days=1)
 
 # Set input values here
-start_date = date(year=2021, month=2, day=6)
-stop_date = date(year=2021, month=5, day=18)
+start_date = date(year=2017, month=1, day=1)
+stop_date = date(year=2017, month=2, day=1)
 bucket_name = ""
 kms_key = ""
 prefix = ""
