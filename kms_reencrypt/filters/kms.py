@@ -14,6 +14,9 @@ class Kms(Filter):
         self.client_s3 = client_s3
 
     def process(self, bucket: str, key: str) -> bool:
+        if key[-1] == "/":
+            return False
+
         rsp = self.client_s3.get_object(
             Bucket=bucket,
             Key=key,

@@ -7,6 +7,9 @@ class Kms(Executor):
         self.kms_key_arn = kms_key_arn
 
     def process(self, bucket: str, key: str):
+        if key[-1] == "/":
+            return
+
         self.client_s3.copy_object(
             Bucket=bucket,
             Key=key,

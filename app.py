@@ -105,7 +105,7 @@ def app(
         default=None, help="KMS key id to match. Use 'alias/xxx' for key alias."
     ),
     filter_match: Match = typer.Option(
-        default=Match.ANY, help="Level of strictness to filter for processing."
+        default=Match.FIRST, help="Level of strictness to filter for processing."
     ),
     keys_per_page: int = typer.Option(
         default=1000, help="S3 list objects max keys per page"
