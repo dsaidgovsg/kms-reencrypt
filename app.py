@@ -54,7 +54,13 @@ def process_prefix(
             pred = get_match_pred(filter_match)
             content_keys = [content_obj["Key"] for content_obj in page["Contents"]]
 
-            # Make sure to use the generator version by not eagerly assigning into a list
+            # New implementation - more specific
+            # for key in content_keys:
+            #     if filter.process(bucket=bucket, key=key):
+            #         logger.info(f"Wrongly encrypted, processing: {key}")
+            #         if not dry_run:
+            #             executor.process(bucket=bucket, key=key)
+
             res = pred(filter.process(bucket=bucket, key=key) for key in content_keys)
 
             if not res:
@@ -94,7 +100,7 @@ def app(
         default=None, help="KMS key id to match. Use 'alias/xxx' for key alias."
     ),
     filter_match: Match = typer.Option(
-        default=Match.FIRST, help="Level of strictness to filter for processing."
+        default=Match.ANY, help="Level of strictness to filter for processing."
     ),
     keys_per_page: int = typer.Option(
         default=1000, help="S3 list objects max keys per page"
