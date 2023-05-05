@@ -47,7 +47,7 @@ poetry run app --help
 ## Prerequisites to Run Script
 
 Minimum:
-Python >= 3.6 (and `pip`)
+Python >= 3.9 (and `pip`)
 
 There are two methods of running:
 
