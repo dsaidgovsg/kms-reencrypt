@@ -55,21 +55,9 @@ def process_prefix(
             content_keys = [content_obj["Key"] for content_obj in page["Contents"]]
 
             # New implementation - more specific
-            # for key in content_keys:
-            #     if filter.process(bucket=bucket, key=key):
-            #         logger.info(f"Wrongly encrypted, processing: {key}")
-            #         if not dry_run:
-            #             executor.process(bucket=bucket, key=key)
-
-            res = pred(filter.process(bucket=bucket, key=key) for key in content_keys)
-
-            if not res:
-                logger.debug("Skipping '%s'", prefix)
-            else:
-                logger.info("Found '%s'", prefix)
-
-                for key in content_keys:
-                    logger.info("Processing '%s'", key)
+            for key in content_keys:
+                if filter.process(bucket=bucket, key=key):
+                    logger.info(f"Wrongly encrypted, processing: {key}")
                     if not dry_run:
                         executor.process(bucket=bucket, key=key)
 
