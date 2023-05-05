@@ -57,7 +57,9 @@ def process_prefix(
                 content_keys = [content_obj["Key"] for content_obj in page["Contents"]]
 
                 # Make sure to use the generator version by not eagerly assigning into a list
-                res = pred(filter.process(bucket=bucket, key=key) for key in content_keys)
+                res = pred(
+                    filter.process(bucket=bucket, key=key) for key in content_keys
+                )
 
                 if not res:
                     logger.debug("Skipping '%s'", prefix)
@@ -116,8 +118,9 @@ def app(
         help="Verbosity of log. Only 'debug' or 'info' is relevant.",
     ),
     strict_process: bool = typer.Option(
-        default=False, help="If set, only re-encrypt the exact files which were wrongly encrypted."
-    )
+        default=False,
+        help="If set, only re-encrypt the exact files which were wrongly encrypted.",
+    ),
 ):
     logging.basicConfig()
     logger.setLevel(level=map_log_level(log_level))
@@ -137,7 +140,7 @@ def app(
         keys_per_page=keys_per_page,
         executor=kms_exec,
         dry_run=dry_run,
-        strict_process=strict_process
+        strict_process=strict_process,
     )
 
     logger.debug("DONE!")
