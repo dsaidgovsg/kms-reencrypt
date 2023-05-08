@@ -68,6 +68,8 @@ def process_prefix(
 
                     for key in content_keys:
                         logger.info("Processing '%s'", key)
+                        if not dry_run:
+                            executor.process(bucket=bucket, key=key)
 
             else:
                 # Only re-encrypt files which are wrongly encrypted
@@ -119,7 +121,10 @@ def app(
     ),
     strict_process: bool = typer.Option(
         default=False,
-        help="If set, only re-encrypt the exact files which were wrongly encrypted.",
+        help=(
+            "If set, only re-encrypt the exact files which were wrongly encrypted."
+            "Note that setting this flag nullifies the flag `filter-match`."
+        ),
     ),
 ):
     logging.basicConfig()
