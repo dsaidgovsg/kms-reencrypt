@@ -52,7 +52,14 @@ def process_prefix(
     for page in pages:
         # "Files" in current "dir"
         if "Contents" in page and page["Contents"]:
-            content_keys = [content_obj["Key"] for content_obj in page["Contents"]]
+            # We do not include keys with a trailing /, which is an indicator of "empty directory"
+            # created when the directory is created via AWS console, and hence not relevant for
+            # KMS encryption
+            content_keys = [
+                content_obj["Key"]
+                for content_obj in page["Contents"]
+                if content_obj["Key"][-1] != "/"
+            ]
             if not strict_process:
                 pred = get_match_pred(filter_match)
 
