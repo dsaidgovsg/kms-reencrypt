@@ -40,6 +40,14 @@ poetry run app <bucket> <kms_key> --dry-run
 This mode is good if the purpose is to only detect and not act on the objects.
 
 ```bash
+# Strictly only run re-encryption on objects which were encrypted with the wrong KMS key
+poetry run app <bucket> <kms_key> --strict-process
+```
+
+This mode is good for situations when SOME objects under a directory need to be re-encrypted, while
+other objects under the same directory do not.
+
+```bash
 # If you need more details
 poetry run app --help
 ```

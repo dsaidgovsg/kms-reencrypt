@@ -39,6 +39,7 @@ def process_prefix(
     keys_per_page: int,
     executor: Executor,
     dry_run: bool,
+    strict_process: bool,
 ):
     paginator = client_s3.get_paginator("list_objects_v2")
     pages = paginator.paginate(
@@ -51,21 +52,39 @@ def process_prefix(
     for page in pages:
         # "Files" in current "dir"
         if "Contents" in page and page["Contents"]:
-            pred = get_match_pred(filter_match)
-            content_keys = [content_obj["Key"] for content_obj in page["Contents"]]
+            # We do not include keys with a trailing /, which is an indicator of "empty directory"
+            # created when the directory is created via AWS console, and hence not relevant for
+            # KMS encryption
+            content_keys = [
+                content_obj["Key"]
+                for content_obj in page["Contents"]
+                if content_obj["Key"][-1] != "/"
+            ]
+            if not strict_process:
+                pred = get_match_pred(filter_match)
 
-            # Make sure to use the generator version by not eagerly assigning into a list
-            res = pred(filter.process(bucket=bucket, key=key) for key in content_keys)
+                # Make sure to use the generator version by not eagerly assigning into a list
+                res = pred(
+                    filter.process(bucket=bucket, key=key) for key in content_keys
+                )
 
-            if not res:
-                logger.debug("Skipping '%s'", prefix)
+                if not res:
+                    logger.debug("Skipping '%s'", prefix)
+                else:
+                    logger.info("Found '%s'", prefix)
+
+                    for key in content_keys:
+                        logger.info("Processing '%s'", key)
+                        if not dry_run:
+                            executor.process(bucket=bucket, key=key)
+
             else:
-                logger.info("Found '%s'", prefix)
-
+                # Only re-encrypt files which are wrongly encrypted
                 for key in content_keys:
-                    logger.info("Processing '%s'", key)
-                    if not dry_run:
-                        executor.process(bucket=bucket, key=key)
+                    if filter.process(bucket=bucket, key=key):
+                        logger.info(f"Wrongly encrypted, processing: {key}")
+                        if not dry_run:
+                            executor.process(bucket=bucket, key=key)
 
         # Traverse into next "dir"
         if "CommonPrefixes" in page:
@@ -84,6 +103,7 @@ def process_prefix(
                     keys_per_page=keys_per_page,
                     executor=executor,
                     dry_run=dry_run,
+                    strict_process=strict_process,
                 )
 
 
@@ -106,6 +126,13 @@ def app(
         default=LogLevel.INFO,
         help="Verbosity of log. Only 'debug' or 'info' is relevant.",
     ),
+    strict_process: bool = typer.Option(
+        default=False,
+        help=(
+            "If set, only re-encrypt the exact files which were wrongly encrypted."
+            "Note that setting this flag nullifies the flag `filter-match`."
+        ),
+    ),
 ):
     logging.basicConfig()
     logger.setLevel(level=map_log_level(log_level))
@@ -125,6 +152,7 @@ def app(
         keys_per_page=keys_per_page,
         executor=kms_exec,
         dry_run=dry_run,
+        strict_process=strict_process,
     )
 
     logger.debug("DONE!")
